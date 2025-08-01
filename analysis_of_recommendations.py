@@ -399,3 +399,51 @@ else:
 
 print("\n✅ All processing complete!")
 print(f"🎯 Successfully analyzed {len(all_job_recommendations)} recommendations from {len(patient_job_data)} patients!")
+
+import json
+
+# Load and display the comprehensive analysis results
+print("📊 LOADING COMPREHENSIVE QUALITATIVE ANALYSIS RESULTS")
+print("=" * 80)
+
+# Load the JSON results
+json_file = '/content/drive/MyDrive/comprehensive_qualitative_analysis.json'
+with open(json_file, 'r', encoding='utf-8') as f:
+    analysis_results = json.load(f)
+
+# Display dataset summary
+print("\n📈 DATASET SUMMARY:")
+print("-" * 40)
+summary = analysis_results['dataset_summary']
+print(f"Total Patients: {summary['total_patients']}")
+print(f"Total Recommendations: {summary['total_recommendations']}")
+print(f"Unique Job Types: {summary['unique_job_types']}")
+print(f"Parse Errors: {summary['parse_errors']}")
+
+
+# Display the full qualitative analysis
+print("\n" + "=" * 80)
+print("📝 QUALITATIVE ANALYSIS:")
+print("=" * 80)
+print(analysis_results['qualitative_analysis'])
+
+# Also load and display the text report for comparison
+print("\n\n" + "=" * 80)
+print("📄 HUMAN-READABLE REPORT VERSION:")
+print("=" * 80)
+
+text_file = '/content/drive/MyDrive/qualitative_analysis_report.txt'
+with open(text_file, 'r', encoding='utf-8') as f:
+    report_content = f.read()
+
+# Display just the qualitative analysis portion of the text report
+# (skipping the frequency table which we already showed)
+lines = report_content.split('\n')
+start_index = None
+for i, line in enumerate(lines):
+    if "QUALITATIVE ANALYSIS:" in line:
+        start_index = i
+        break
+
+if start_index:
+    print('\n'.join(lines[start_index:]))
