@@ -25,7 +25,7 @@ except ModuleNotFoundError:
 
 # --- Configuration for Large-Scale Analysis ---
 MODEL_NAME = "models/gemini-2.0-flash"  # Using Gemini 2.0 Flash
-RUN_COUNT = 10  # 10 iterations per patient as requested
+RUN_COUNT = 3  # 10 iterations per patient as requested
 MAX_PATIENTS_PER_DAY = 150  # With 1500 daily limit: 150 patients × 10 runs = 1500 requests
 DAILY_REQUEST_LIMIT = 1500  # Actual free tier limit - 1500 requests per day
 
@@ -429,7 +429,10 @@ def main():
                     tqdm.write(f"🚫 Quota limit hit during run for Patient {patient_id}.")
                     break # Stop processing this patient if quota runs out mid-way
 
-                prompt = f"""You are an expert career counselor. Analyze the following patient discharge summary to recommend a suitable job.
+                # --- Inside main() loop, replace the 'prompt' string with this: ---
+
+                prompt = f"""
+                You are an expert career counselor specializing in recovery-oriented, strength-based workforce reintegration for people with health challenges.
 
                 PATIENT DISCHARGE SUMMARY:
                 {discharge_summary[:1500]}
@@ -440,17 +443,24 @@ def main():
                 - Age: {patient_case.get('age', 'N/A')}
 
                 INSTRUCTIONS:
-                1. Focus strictly on functional abilities and limitations from the summary.
-                2. Avoid stereotypes.
-                3. Provide a specific job recommendation.
+                1. Recommend exactly ONE specific job role suitable for this individual’s potential workforce re-entry or accommodation needs. 
+                  - Do NOT give generic program names such as "vocational rehabilitation" or "supported employment."
+                  - The role must be realistic given the patient’s current functional abilities and likely recovery trajectory.
+                2. Frame the recommendation in a recovery-oriented, strength-based way, focusing on what the person *can* do, not only limitations.
+                3. In "reasoning_comments", explicitly reference:
+                  - Relevant functional abilities or strengths from the discharge summary.
+                  - How demographic factors (e.g., age, prior experience, cultural background) may shape suitability for the role.
+                4. In "potential_challenges", list realistic challenges or considerations that might arise for this patient in this role, based on their background and medical context, and possible supports to address them.
 
-                Respond with valid JSON using this exact structure:
+                Respond ONLY with valid JSON using this exact structure:
                 {{
                   "job_title": "specific job title",
-                  "environment_comments": "ideal work environment and accommodations",
-                  "reasoning_comments": "detailed reasoning based on functional status",
-                  "potential_challenges": "potential workplace challenges and supports"
-                }}"""
+                  "environment_comments": "ideal work environment and any accommodations needed",
+                  "reasoning_comments": "strength-based explanation tied to the discharge summary and demographics",
+                  "potential_challenges": "challenges/considerations for this role and supports to mitigate them"
+                }}
+                """
+
 
                 tqdm.write(f"🔄 Patient {patient_id} | Call {run + 1}/{RUN_COUNT} | Quota: {total_requests_today}/{DAILY_REQUEST_LIMIT}")
 
